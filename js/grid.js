@@ -18,6 +18,14 @@ Grid.prototype.empty = function () {
   return cells;
 };
 
+//debug grid in console
+Grid.prototype.printGrid = function (a) {
+  for (var x = 0; x < this.size; x++) {
+      console.log(a.cells[0][x]? a.cells[0][x].value : null,a.cells[1][x]? a.cells[1][x].value : null,
+                  a.cells[2][x]? a.cells[2][x].value : null,a.cells[3][x]? a.cells[3][x].value : null);  
+  }   
+};
+
 Grid.prototype.fromState = function (state) {
   var cells = [];
 

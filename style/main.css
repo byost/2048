@@ -205,6 +205,24 @@ hr {
   position: absolute;
   z-index: 1; }
 
+ /* begin torus */
+.vert {
+  position:absolute;
+  height:240px;
+  width: 14px;
+  background-color: black;
+  border-radius: 6px;
+}
+
+.horz {
+  position:absolute;
+  height: 14px;
+  width: 240px;
+  background-color: black;
+  border-radius: 6px;
+}
+ /* end torus */
+
 .grid-row {
   margin-bottom: 15px; }
   .grid-row:last-child {
