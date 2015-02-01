@@ -266,6 +266,7 @@ GameManager.prototype.horzbackShift = function () {
         var tile = new Tile({x:i,y:j}, tempcells[(i+3)%4][j].value);
         tile.mergedFrom = tempcells[(i+3)%4][j].mergedFrom;
         tile.previousPosition = tempcells[(i+3)%4][j].previousPosition;
+        if (tile.previousPosition) {tile.previousPosition.x = (tile.previousPosition.x + 1) % 4;}
         if (tile.mergedFrom) {
           tile.mergedFrom.forEach(function (merged) {
              merged.x = (merged.x +1)%4;
@@ -277,6 +278,7 @@ GameManager.prototype.horzbackShift = function () {
         var tile = new Tile({x:i,y:j+2}, tempcells[(i+1)%4][j+2].value);
         tile.mergedFrom = tempcells[(i+1)%4][j+2].mergedFrom;
         tile.previousPosition = tempcells[(i+1)%4][j+2].previousPosition;
+        if (tile.previousPosition) {tile.previousPosition.x = (tile.previousPosition.x + 3) % 4;}
         if (tile.mergedFrom) {
           tile.mergedFrom.forEach(function (merged) {
              merged.x = (merged.x +3)%4;
@@ -364,6 +366,7 @@ GameManager.prototype.vertbackShift = function () {
       
         tile.mergedFrom = tempcells[i][(j+1)%4].mergedFrom;
         tile.previousPosition = tempcells[i][(j+1)%4].previousPosition;
+        if (tile.previousPosition) {tile.previousPosition.y = (tile.previousPosition.y + 3) % 4;}
         if (tile.mergedFrom) {
           tile.mergedFrom.forEach(function (merged) {
              merged.y = (merged.y+3)%4;
@@ -375,6 +378,7 @@ GameManager.prototype.vertbackShift = function () {
         var tile = new Tile({x:i+2,y:j}, tempcells[i+2][(j+3)%4].value);
         tile.mergedFrom = tempcells[i+2][(j+3)%4].mergedFrom;
         tile.previousPosition = tempcells[i+2][(j+3)%4].previousPosition;
+        if (tile.previousPosition) {tile.previousPosition.y = (tile.previousPosition.y + 1) % 4;}
         if (tile.mergedFrom) {
           tile.mergedFrom.forEach(function (merged) {
              merged.y = (merged.y+1)%4;
