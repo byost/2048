@@ -123,3 +123,203 @@ Grid.prototype.serialize = function () {
     cells: cellState
   };
 };
+// transform grid torus -> flat
+Grid.prototype.horzShift = function () {
+  var tempcells = [[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null]];
+  for (var i =0; i<4;i++) {
+    for (var j=0; j<4; j++) {
+      tempcells[i][j] = this.cells[i][j];
+     }
+  }
+  // first remove tiles
+  for (var i = 0; i < 4; i++) { 
+    for (var j = 0; j < 2; j++) {
+      if (tempcells[(i+1)%4][j]) {
+        this.removeTile({x:((i+1)%4),y:j});
+      }
+      if (tempcells[(i+3)%4][j+2]) {
+        this.removeTile({x:((i+3)%4),y:j+2});
+      }
+    }
+  }
+// then insert new tiles
+  for (var i = 0; i < 4; i++) { 
+    for (var j = 0; j < 2; j++) {
+      if (tempcells[(i+1)%4][j]) {
+        var tile = new Tile({x:i,y:j}, tempcells[(i+1)%4][j].value);
+      
+        tile.mergedFrom = tempcells[(i+1)%4][j].mergedFrom;
+        tile.previousPosition = tempcells[(i+1)%4][j].previousPosition;
+        if (tile.mergedFrom) {
+          tile.mergedFrom.forEach(function (merged) {
+             merged.x = (merged.x +3)%4;
+          });
+        }
+        this.insertTile(tile);
+     }
+      if (tempcells[(i+3)%4][j+2]) {
+        var tile = new Tile({x:i,y:j+2}, tempcells[(i+3)%4][j+2].value);
+        tile.mergedFrom = tempcells[(i+3)%4][j+2].mergedFrom;
+        tile.previousPosition = tempcells[(i+3)%4][j+2].previousPosition;
+        if (tile.mergedFrom) {
+          tile.mergedFrom.forEach(function (merged) {
+             merged.x = (merged.x +1)%4;
+          });
+        }
+        this.insertTile(tile);
+      }
+    }
+  } 
+};     
+
+// transform grid flat -> torus
+Grid.prototype.horzbackShift = function () {
+  var tempcells = [[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null]];
+  for (var i =0; i<4;i++) {
+    for (var j=0; j<4; j++) {
+      tempcells[i][j] = this.cells[i][j];
+     }
+  }
+  // first remove tiles
+  for (var i = 0; i < 4; i++) { 
+    for (var j = 0; j < 2; j++) {
+      if (tempcells[(i+3)%4][j]) {
+        this.removeTile({x:(i+3)%4,y:j});
+      }
+      if (tempcells[(i+1)%4][j+2]) {
+        this.removeTile({x:((i+1)%4),y:j+2});
+      }
+    }
+  }
+  // then insert new tiles
+  for (var i = 0; i< 4; i++) { 
+    for (var j = 0; j < 2; j++) {
+      if (tempcells[(i+3)%4][j]) {
+        var tile = new Tile({x:i,y:j}, tempcells[(i+3)%4][j].value);
+        tile.mergedFrom = tempcells[(i+3)%4][j].mergedFrom;
+        tile.previousPosition = tempcells[(i+3)%4][j].previousPosition;
+        if (tile.previousPosition) 
+          {tile.previousPosition.x = (tile.previousPosition.x + 1) % 4;
+            if (tile.previousPosition.x == 0) {tile.previousPosition.x = 3;}}
+        if (tile.mergedFrom) {
+          tile.mergedFrom.forEach(function (merged) {
+             merged.x = (merged.x +1)%4;
+          });
+        }
+        this.insertTile(tile);
+      }
+      if (tempcells[(i+1)%4][j+2]) {
+        var tile = new Tile({x:i,y:j+2}, tempcells[(i+1)%4][j+2].value);
+        tile.mergedFrom = tempcells[(i+1)%4][j+2].mergedFrom;
+        tile.previousPosition = tempcells[(i+1)%4][j+2].previousPosition;
+        if (tile.previousPosition) {tile.previousPosition.x = (tile.previousPosition.x + 3) % 4;}
+        if (tile.mergedFrom) {
+          tile.mergedFrom.forEach(function (merged) {
+             merged.x = (merged.x +3)%4;
+          });
+        }
+        this.insertTile(tile);
+      }
+    }
+  } 
+};  
+
+// transform grid torus -> flat
+Grid.prototype.vertShift = function () {
+  var tempcells = [[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null]];
+  for (var i =0; i<4;i++) {
+   for (var j=0; j<4; j++) {
+      tempcells[i][j] = this.cells[i][j];
+     }
+  }
+  // first remove tiles
+  for (var j = 0; j < 4; j++) { 
+    for (var i = 0; i < 2; i++) {
+      if (tempcells[i][(j+3)%4]) {
+        this.removeTile({x:i,y:(j+3)%4});
+      }
+      if (tempcells[i+2][(j+1)%4]) {
+        this.removeTile({x:i+2,y:(j+1)%4});
+      }
+    }
+  }
+// then insert new tiles
+ for (var j = 0; j < 4; j++) { 
+    for (var i = 0; i < 2; i++) {
+      if (tempcells[i][(j+3)%4]) {
+        var tile = new Tile({x:i,y:j}, tempcells[i][(j+3)%4].value);
+      
+        tile.mergedFrom = tempcells[i][(j+3)%4].mergedFrom;
+        tile.previousPosition = tempcells[i][(j+3)%4].previousPosition;
+        if (tile.mergedFrom) {
+          tile.mergedFrom.forEach(function (merged) {
+             merged.y = (merged.y+1)%4;
+          });
+        }
+        this.insertTile(tile);
+     }
+      if (tempcells[i+2][(j+1)%4]) {
+        var tile = new Tile({x:i+2,y:j}, tempcells[i+2][(j+1)%4].value);
+        tile.mergedFrom = tempcells[i+2][(j+1)%4].mergedFrom;
+        tile.previousPosition = tempcells[i+2][(j+1)%4].previousPosition;
+        if (tile.mergedFrom) {
+          tile.mergedFrom.forEach(function (merged) {
+             merged.y = (merged.y+3)%4;
+          });
+        }
+        this.insertTile(tile);
+      }
+    }
+  } 
+};     
+
+// transform grid flat -> torus
+Grid.prototype.vertbackShift = function () {
+  var tempcells = [[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null]];
+  for (var i =0; i<4;i++) {
+    for (var j=0; j<4; j++) {
+      tempcells[i][j] = this.cells[i][j];
+     }
+  }
+  // first remove tiles
+   for (var j = 0; j < 4; j++) { 
+    for (var i = 0; i < 2; i++) {
+      if (tempcells[i][(j+1)%4]) {
+        this.removeTile({x:i,y:(j+1)%4});
+      }
+      if (tempcells[i+2][(j+3)%4]) {
+        this.removeTile({x:i+2,y:(j+3)%4});
+      }
+    }
+  }
+  // then insert new tiles
+  for (var j = 0; j < 4; j++) { 
+    for (var i = 0; i < 2; i++) {
+      if (tempcells[i][(j+1)%4]) {
+        var tile = new Tile({x:i,y:j}, tempcells[i][(j+1)%4].value);
+      
+        tile.mergedFrom = tempcells[i][(j+1)%4].mergedFrom;
+        tile.previousPosition = tempcells[i][(j+1)%4].previousPosition;
+        if (tile.previousPosition) {tile.previousPosition.y = (tile.previousPosition.y + 3) % 4;}
+        if (tile.mergedFrom) {
+          tile.mergedFrom.forEach(function (merged) {
+             merged.y = (merged.y+3)%4;
+          });
+        }
+        this.insertTile(tile);
+     }
+      if (tempcells[i+2][(j+3)%4]) {
+        var tile = new Tile({x:i+2,y:j}, tempcells[i+2][(j+3)%4].value);
+        tile.mergedFrom = tempcells[i+2][(j+3)%4].mergedFrom;
+        tile.previousPosition = tempcells[i+2][(j+3)%4].previousPosition;
+        if (tile.previousPosition) {tile.previousPosition.y = (tile.previousPosition.y + 1) % 4;}
+        if (tile.mergedFrom) {
+          tile.mergedFrom.forEach(function (merged) {
+             merged.y = (merged.y+1)%4;
+          });
+        }
+        this.insertTile(tile);
+      }
+    }
+  } 
+};  

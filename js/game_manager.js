@@ -129,7 +129,7 @@ GameManager.prototype.moveTile = function (tile, cell) {
 // Move tiles on the grid in the specified direction
 GameManager.prototype.move = function (direction) {
   // 0: up, 1: right, 2: down, 3: left
-  if (direction%2 == 1) { this.horzShift(); } else { this.vertShift(); }
+  if (direction%2 == 1) { this.grid.horzShift(); } else { this.grid.vertShift(); }
 
   var self = this;
 
@@ -180,7 +180,7 @@ GameManager.prototype.move = function (direction) {
       }
     });
   });
-  if (direction%2 == 1) { this.horzbackShift(); } else { this.vertbackShift(); }
+  if (direction%2 == 1) { this.grid.horzbackShift(); } else { this.grid.vertbackShift(); }
  
   if (moved) {
     this.addRandomTile();
@@ -191,7 +191,7 @@ GameManager.prototype.move = function (direction) {
     this.actuate();
   }
 };
-// transform grid torus -> flat
+/* transform grid torus -> flat
 GameManager.prototype.horzShift = function () {
   var tempcells = [[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null]];
   for (var i =0; i<4;i++) {
@@ -266,7 +266,9 @@ GameManager.prototype.horzbackShift = function () {
         var tile = new Tile({x:i,y:j}, tempcells[(i+3)%4][j].value);
         tile.mergedFrom = tempcells[(i+3)%4][j].mergedFrom;
         tile.previousPosition = tempcells[(i+3)%4][j].previousPosition;
-        if (tile.previousPosition) {tile.previousPosition.x = (tile.previousPosition.x + 1) % 4;}
+        if (tile.previousPosition) 
+          {tile.previousPosition.x = (tile.previousPosition.x + 1) % 4;
+            if (tile.previousPosition.x == 0) {tile.previousPosition.x = 3;}}
         if (tile.mergedFrom) {
           tile.mergedFrom.forEach(function (merged) {
              merged.x = (merged.x +1)%4;
@@ -294,7 +296,7 @@ GameManager.prototype.horzbackShift = function () {
 GameManager.prototype.vertShift = function () {
   var tempcells = [[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null]];
   for (var i =0; i<4;i++) {
-    for (var j=0; j<4; j++) {
+   for (var j=0; j<4; j++) {
       tempcells[i][j] = this.grid.cells[i][j];
      }
   }
@@ -389,7 +391,7 @@ GameManager.prototype.vertbackShift = function () {
     }
   } 
 };        
-
+*/
 // Get the vector representing the chosen direction
 GameManager.prototype.getVector = function (direction) {
   // Vectors representing tile movement
@@ -441,7 +443,7 @@ GameManager.prototype.movesAvailable = function () {
 
 // Check for available matches between tiles (more expensive check)
 GameManager.prototype.tileMatchesAvailable = function () {
-  var self = this;
+  var self = new Grid(4,this.cells);
   var tile;
 
  /* for (var x = 0; x < this.size; x++) {
@@ -463,10 +465,10 @@ GameManager.prototype.tileMatchesAvailable = function () {
     }
   } */
   for (var direction = 0; direction < 2; direction++) {
-    direction == 1 ? this.horzShift() : this.vertShift();
+    direction == 1 ? self.horzShift() : self.vertShift();
     for (var x = 0; x < this.size; x++) {
     for (var y = 0; y < this.size; y++) {
-      tile = this.grid.cellContent({ x: x, y: y });
+      tile = self.cellContent({ x: x, y: y });
 
       if (tile) {
           var vector = self.getVector(direction);
@@ -475,13 +477,13 @@ GameManager.prototype.tileMatchesAvailable = function () {
           var other  = self.grid.cellContent(cell);
 
           if (other && other.value === tile.value) {
-            direction == 1 ? this.horzbackShift() : this.vertbackShift();
+            //direction == 1 ? self.horzbackShift() : self.vertbackShift();
             return true; // These two tiles can be merged
           }
         }
       }
     }
-    direction == 1 ? this.horzbackShift() : this.vertbackShift();
+   // direction == 1 ? self.horzbackShift() : self.vertbackShift();
   }
   return false;
 };
