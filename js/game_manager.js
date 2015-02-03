@@ -465,7 +465,7 @@ GameManager.prototype.tileMatchesAvailable = function () {
     }
   } */
   for (var direction = 0; direction < 2; direction++) {
-    direction == 1 ? self.horzShift() : self.vertShift();
+    direction == 1 ? self.grid.horzShift() : self.grid.vertShift();
     for (var x = 0; x < this.size; x++) {
     for (var y = 0; y < this.size; y++) {
       tile = self.cellContent({ x: x, y: y });
