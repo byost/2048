@@ -128,6 +128,12 @@ GameManager.prototype.moveTile = function (tile, cell) {
 
 // Move tiles on the grid in the specified direction
 GameManager.prototype.move = function (direction) {
+
+  if (this.isGameTerminated()) return; // Don't do anything if the game's over
+
+  // Save the current tile positions and remove merger information
+  this.prepareTiles();
+
   // 0: up, 1: right, 2: down, 3: left
   var moved = this.processRows(direction) ;
 
@@ -197,8 +203,13 @@ GameManager.prototype.process = function (a) {
       if (a[0]) {
         if (a[1]) {
           if (a[0].value==a[1].value) {     //merge tiles if true
+            //var merged = new Tile({x:a[1].x,y:a[1].y}, 2*a[0].value);
+            //merged.mergedFrom = [a[0],a[1]];
+            //a[1].mergedFrom = [new Tile({x:a[0].x,y:a[0].y}, a[0].value), new Tile({x:a[1].x,y:a[1].y}, a[0].value)];
+
             a.shift();
-            a[0].value = 2*a[0].value;
+            a[0].value = 2*a[0].value
+            //a[0] = merged;
             this.score += a[0].value;             
             }
         } else {
@@ -233,6 +244,9 @@ GameManager.prototype.processRows = function (direction) {
           }
         }
           if (row2[j] != this.grid.cells[i+2][(j+1)%4]) {
+            if (j==3) {       //kludge for sliding top tile off top side
+                this.grid.cells[i+2][0].previousPosition.y = 3;
+              }
             moved = true;
             if (row2[j]) {
               row2[j].updatePosition({x:i+2,y:(j+1)%4});
@@ -264,6 +278,9 @@ GameManager.prototype.processRows = function (direction) {
           }
         }
           if (row2[i] != this.grid.cells[(6-i)%4][j+2]) {
+             if (i==3) {                      //kludge for sliding right tile off right side
+                this.grid.cells[3][j+2].previousPosition.x = 0;
+              }  
             moved = true;
             if (row2[i]) {
               row2[i].updatePosition({x:(6-i)%4,y:j+2});
@@ -286,10 +303,13 @@ GameManager.prototype.processRows = function (direction) {
       row2 = this.process(row2);
         for (i=0;i<4;i++) {
           if (row1[i] != this.grid.cells[(i+1)%4][j]) {
+            if (i==3) {       //kludge for sliding left tile off left side
+                this.grid.cells[0][j].previousPosition.x = 3;
+              }  
             moved = true;
             if (row1[i]) {
               row1[i].updatePosition({x:(i+1)%4,y:j});
-              this.grid.cells[(i+1)%4][j] = row1[i];
+              this.grid.cells[(i+1)%4][j] = row1[i]; 
           } else {
             this.grid.cells[(i+1)%4][j] = null;
           }
@@ -317,12 +337,15 @@ GameManager.prototype.processRows = function (direction) {
       row2 = this.process(row2);
       for (j=0;j<4;j++) {
         if (row1[j] != this.grid.cells[i][(6-j)%4]) {
-            moved = true;
-            if (row1[j]) {
-              row1[j].updatePosition({x:i,y:(6-j)%4});
-              this.grid.cells[i][(6-j)%4] = row1[j];
-          } else {
-            this.grid.cells[i][(6-j)%4] = null;
+          if (j==3) {            //kludge for sliding bottom tile off bottom side
+            this.grid.cells[i][3].previousPosition.y = 0;
+          }
+          moved = true;
+          if (row1[j]) {
+            row1[j].updatePosition({x:i,y:(6-j)%4});
+            this.grid.cells[i][(6-j)%4] = row1[j];
+        } else {
+          this.grid.cells[i][(6-j)%4] = null;
           }
         }
           if (row2[j] != this.grid.cells[i+2][(4-j)%4]) {
